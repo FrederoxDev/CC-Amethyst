@@ -615,7 +615,7 @@ LUA_API void lua_pushboolean (lua_State *L, int b) {
 
 LUA_API void lua_pushlightuserdata (lua_State *L, void *p) {
   lua_lock(L);
-  setpvalue(s2v(L->top.p), p);
+   setpvalue(s2v(L->top.p), p);
   api_incr_top(L);
   lua_unlock(L);
 }

@@ -1,9 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <amethyst/runtime/AmethystContext.hpp>
-#include <minecraft/src/common/world/level/block/registry/BlockTypeRegistry.hpp>
 #include <minecraft/src/common/world/item/BlockItem.hpp>
-
 #include "turtle/TurtleBlock.hpp"
 
 #define ModFunction extern "C" __declspec(dllexport)

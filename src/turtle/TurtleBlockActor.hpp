@@ -26,12 +26,7 @@ public:
 		BlockActor::~BlockActor();
 	}
 
-	virtual void onPlace(BlockSource& region) override {
-		// Only create an instance of lua on the server side
-		if (region.mLevel->isClientSide) return;
-
-		// Start a new instance of lua
-		// Todo: Move this to a new thread so we don't block main while running scripts
+	void initializeLua() {
 		L = luaL_newstate();
 		luaL_openlibs(L);
 
@@ -45,12 +40,16 @@ public:
 	void onBlockClicked(BlockSource& region) {
 		if (region.mLevel->isClientSide) return;
 
+		if (L == nullptr) initializeLua();
+
 		// Set a ptr to BlockSource
 		lua_pushlightuserdata(L, &region);
 		lua_setfield(L, LUA_REGISTRYINDEX, "region");
 
 		std::string luaScript = R"(
-			print(turtle.inspectDown())
+			for i = 0, 3 do
+				turtle.up()
+			end
 		)";
 
 		if (luaL_dostring(L, luaScript.c_str()) != LUA_OK) {

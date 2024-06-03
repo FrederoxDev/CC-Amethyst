@@ -16,6 +16,10 @@ public:
 		return std::make_shared<TurtleBlockActor>((BlockActorType)58, pos, "minecraft:turtle");
 	}
 
+	virtual void movedByPiston(BlockSource& region, const BlockPos& pos) const override {
+		Log::Info("MovedByPiston");
+	};
+
 protected:
 	virtual bool use(Player& player, const BlockPos& pos, unsigned char face) const override {
 		const Dimension& dimension = player.getDimensionConst();

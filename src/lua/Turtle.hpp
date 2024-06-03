@@ -8,8 +8,7 @@ extern "C" {
 }
 
 namespace TurtleGlobal {
-	int Forward(lua_State* L);
-	int Back(lua_State* L);
+	int Up(lua_State* L);
 	int InspectDown(lua_State* L);
 };
 

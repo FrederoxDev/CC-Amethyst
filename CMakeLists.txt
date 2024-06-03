@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
   
 # Mod Options
-project(CC-Bedrock CXX ASM_NASM)
+project(CC-Bedrock CXX ASM_NASM) 
 set(MOD_VERSION "0.1.0")
 set(MOD_AUTHOR "FrederoxDev")
 

@@ -1,4 +1,5 @@
 ﻿#include "dllmain.hpp"
+#include <minecraft/src/common/world/level/block/registry/BlockTypeRegistry.hpp>
 
 WeakPtr<TurtleBlock> TURTLE_BLOCK;
 WeakPtr<BlockItem> TURTLE_BLOCK_ITEM;
