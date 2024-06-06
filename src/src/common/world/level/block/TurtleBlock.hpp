@@ -26,7 +26,13 @@ protected:
 			LuaInstance* luaInstance = LuaInstanceManager::GetOrCreateInstanceAt(pos);
 			luaInstance->RunLua(R"(
 				
-			print(turtle.inspectDown())
+			if turtle.inspectDown() == "minecraft:grass" then
+				turtle.up()
+				turtle.up()
+			else
+				turtle.up()
+			end
+
 
 			)");
 		}

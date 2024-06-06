@@ -12,4 +12,5 @@ private:
 public:
     static LuaInstance* GetOrCreateInstanceAt(const BlockPos& position);
     static LuaInstance& GetInstanceFromLua(lua_State* L);
+    static void MoveInstance(const BlockPos& from, const BlockPos& to);
 };

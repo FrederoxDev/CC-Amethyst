@@ -24,3 +24,21 @@ LuaInstance& LuaInstanceManager::GetInstanceFromLua(lua_State* L)
 	if (instance) return *instance;
 	Assert("Failed to get field 'lua_instance' from lua_State*");
 }
+
+void LuaInstanceManager::MoveInstance(const BlockPos& from, const BlockPos& to)
+{
+	std::lock_guard<std::mutex> lock(mInstanceMapMutex);
+
+	auto it = mWorldPositionToLuaInstance.find(from);
+	if (it == mWorldPositionToLuaInstance.end()) {
+		Assert("Tried to move a LuaInstance from {}, but no instance exists at this position.", from);
+	}
+
+	auto newIt = mWorldPositionToLuaInstance.find(to);
+	if (newIt != mWorldPositionToLuaInstance.end()) {
+		Assert("Tried to move a LuaInstance from {} to {} but an instance already exists at the new location", to, from);
+	}
+
+	mWorldPositionToLuaInstance[to] = std::move(it->second);
+	mWorldPositionToLuaInstance.erase(it);
+}
