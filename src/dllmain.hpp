@@ -2,7 +2,8 @@
 #include <Windows.h>
 #include <amethyst/runtime/AmethystContext.hpp>
 #include <minecraft/src/common/world/item/BlockItem.hpp>
-#include "turtle/TurtleBlock.hpp"
+
+#include "src/common/world/level/block/TurtleBlock.hpp"
 
 #define ModFunction extern "C" __declspec(dllexport)
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <minecraft/src/common/world/level/block/BlockLegacy.hpp>
-#include "TurtleBlockActor.hpp"
+#include "src/common/world/level/block/actor/TurtleBlockActor.hpp"
+#include "src/common/world/level/computer/LuaInstanceManager.hpp"
 
 class TurtleBlock : public BlockLegacy {
 public: 
@@ -16,22 +17,19 @@ public:
 		return std::make_shared<TurtleBlockActor>((BlockActorType)58, pos, "minecraft:turtle");
 	}
 
-	virtual void movedByPiston(BlockSource& region, const BlockPos& pos) const override {
-		Log::Info("MovedByPiston");
-	};
-
 protected:
 	virtual bool use(Player& player, const BlockPos& pos, unsigned char face) const override {
 		const Dimension& dimension = player.getDimensionConst();
 		BlockSource& region = dimension.getBlockSourceFromMainChunkSource();
 
-		TurtleBlockActor* blockActor = (TurtleBlockActor*)region.getBlockEntity(pos);
-		if (blockActor == nullptr) {
-			Log::Warning("Failed to get TurtleBlockActor at position {}", pos);
-			return true;
-		}
+		if (!region.mLevel->isClientSide) {
+			LuaInstance* luaInstance = LuaInstanceManager::GetOrCreateInstanceAt(pos);
+			luaInstance->RunLua(R"(
+				
+			print(turtle.inspectDown())
 
-		blockActor->onBlockClicked(region);
+			)");
+		}
 
 		return true;
 	}

@@ -1,5 +1,7 @@
 ﻿#include "dllmain.hpp"
 #include <minecraft/src/common/world/level/block/registry/BlockTypeRegistry.hpp>
+#include <minecraft/src/common/world/level/chunk/LevelChunk.hpp>
+#include <minecraft/src/common/world/level/block/Block.hpp>
 
 WeakPtr<TurtleBlock> TURTLE_BLOCK;
 WeakPtr<BlockItem> TURTLE_BLOCK_ITEM;
@@ -8,6 +10,7 @@ ModFunction void Initialize(AmethystContext* ctx)
 {
 	InitializeVtablePtrs();
     Amethyst::EventManager& events = ctx->mEventManager;
+	HookManager hooks = ctx->mHookManager;
 
     events.registerBlocks.AddListener(&RegisterBlocks);
 	events.registerItems.AddListener(&RegisterItems);
