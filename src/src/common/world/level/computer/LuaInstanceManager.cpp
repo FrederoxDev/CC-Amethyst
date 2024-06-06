@@ -3,6 +3,12 @@
 std::unordered_map<BlockPos, std::shared_ptr<LuaInstance>> LuaInstanceManager::mWorldPositionToLuaInstance;
 std::mutex LuaInstanceManager::mInstanceMapMutex;
 
+bool LuaInstanceManager::IsInstanceAt(const BlockPos& position)
+{
+	auto it = mWorldPositionToLuaInstance.find(position);
+	return it != mWorldPositionToLuaInstance.end();
+}
+
 LuaInstance* LuaInstanceManager::GetOrCreateInstanceAt(const BlockPos& position)
 {
 	std::lock_guard<std::mutex> lock(mInstanceMapMutex);
@@ -11,6 +17,7 @@ LuaInstance* LuaInstanceManager::GetOrCreateInstanceAt(const BlockPos& position)
 
 	if (it != mWorldPositionToLuaInstance.end()) return it->second.get();
 
+	Log::Info("Making new instance at {}", position);
 	mWorldPositionToLuaInstance[position] = std::make_shared<LuaInstance>();
 	return mWorldPositionToLuaInstance[position].get();
 }

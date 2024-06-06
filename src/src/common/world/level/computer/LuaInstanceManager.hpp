@@ -10,6 +10,7 @@ private:
     static std::mutex mInstanceMapMutex;
 
 public:
+    static bool IsInstanceAt(const BlockPos& position);
     static LuaInstance* GetOrCreateInstanceAt(const BlockPos& position);
     static LuaInstance& GetInstanceFromLua(lua_State* L);
     static void MoveInstance(const BlockPos& from, const BlockPos& to);

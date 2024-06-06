@@ -20,7 +20,7 @@ public:
 	{
 		// Todo: Setup custom renderer for the block
 		mRendererId = BlockActorRendererId::TR_DEFAULT_RENDERER;
-		mLuaInstance = LuaInstanceManager::GetOrCreateInstanceAt(pos);
+		mLuaInstance = nullptr;
 	};
 
 	virtual void tick(BlockSource& region) override;

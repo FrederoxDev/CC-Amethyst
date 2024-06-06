@@ -82,16 +82,21 @@ int _inspectDown(lua_State* L) {
 int up(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
 	const Block& turtleBlock = region.getBlock(turtle.mPosition);
 	const Block& aboveBlock = region.getBlock(turtle.mPosition.above());
-
+	BlockPos originalPos = turtle.mPosition;
+	 
 	// check if the block is air
 	// it probably makes sense to allow moving through other blocks, but for now this is fine
 	if (aboveBlock.mLegacyBlock->mNameInfo.mFullName.getHash() != HashedString::computeHash("minecraft:air")) {
 		return 0;
 	}
 
-	LuaInstanceManager::MoveInstance(turtle.mPosition, turtle.mPosition.above());
-	region.setBlock(turtle.mPosition, aboveBlock, 3, nullptr, nullptr);
-	region.setBlock(turtle.mPosition.above(), turtleBlock, 3, nullptr, nullptr);
+	LuaInstanceManager::MoveInstance(originalPos, originalPos.above());
+	region.setBlock(originalPos, aboveBlock, 3, nullptr, nullptr);
+	region.setBlock(originalPos.above(), turtleBlock, 3, nullptr, nullptr);
+
+	GameEvent* blockChangeEvent = (GameEvent*)SlideAddress(0x5665208);
+	region.postGameEvent(nullptr, *blockChangeEvent, originalPos, &turtleBlock);
+	region.postGameEvent(nullptr, *blockChangeEvent, originalPos.above(), &aboveBlock);
 
 	return 0;
 }
@@ -128,6 +133,8 @@ void LuaInstance::_InitializeLuaInstance()
 
 void LuaInstance::_RunLua(const std::string& code)
 {
+	Log::Info("_RunLua");
+
 	{
 		std::lock_guard<std::mutex> lock(mLuaMutex);
 		mIsRunning = true;
