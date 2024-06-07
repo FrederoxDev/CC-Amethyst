@@ -1,6 +1,8 @@
 #include "LuaInstance.hpp"
 #include "LuaInstanceManager.hpp"
+#include <minecraft/src/common/network/LoopbackPacketSender.hpp>
 #include "src/common/world/level/block/actor/TurtleBlockActor.hpp"
+#include <src/common/network/packet/TurtleActionPacket.hpp>
 
 LuaInstance::~LuaInstance()
 {
@@ -97,6 +99,10 @@ int up(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
 	GameEvent* blockChangeEvent = (GameEvent*)SlideAddress(0x5665208);
 	region.postGameEvent(nullptr, *blockChangeEvent, originalPos, &turtleBlock);
 	region.postGameEvent(nullptr, *blockChangeEvent, originalPos.above(), &aboveBlock);
+
+	Log::Info("mPacketSender 0x{:x}", *(uintptr_t*)region.mLevel->mPacketSender - GetMinecraftBaseAddress());
+	TurtleActionPacket actionPacket = TurtleActionPacket();
+	region.mLevel->mPacketSender->sendBroadcast(actionPacket);
 
 	return 0;
 }
