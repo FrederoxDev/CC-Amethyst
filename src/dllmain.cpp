@@ -2,6 +2,7 @@
 #include <minecraft/src/common/world/level/block/registry/BlockTypeRegistry.hpp>
 #include <minecraft/src/common/world/level/chunk/LevelChunk.hpp>
 #include <minecraft/src/common/world/level/block/Block.hpp>
+#include <src/common/network/packet/TurtleActionPacket.hpp>
 
 WeakPtr<TurtleBlock> TURTLE_BLOCK;
 WeakPtr<BlockItem> TURTLE_BLOCK_ITEM;
@@ -11,7 +12,7 @@ SafetyHookInline _createPacket;
 std::shared_ptr<Packet> createPacket(MinecraftPacketIds id) {
 	if (id > MinecraftPacketIds::EndId) {
 		Log::Info("Recieved packet with id {}", (int)id);
-		return nullptr;
+		return std::make_shared<TurtleActionPacket>();
 	}
 
 	return _createPacket.call<std::shared_ptr<Packet>>(id);
