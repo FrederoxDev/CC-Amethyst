@@ -1,7 +1,8 @@
 #pragma once
-#include <minecraft/src/common/world/level/block/BlockLegacy.hpp>
 #include "src/common/world/level/block/actor/TurtleBlockActor.hpp"
 #include "src/common/world/level/computer/LuaInstanceManager.hpp"
+#include <minecraft/src/common/world/level/block/BlockLegacy.hpp>
+#include <minecraft/src/common/world/level/dimension/Dimension.hpp>
 
 class TurtleBlock : public BlockLegacy {
 public: 

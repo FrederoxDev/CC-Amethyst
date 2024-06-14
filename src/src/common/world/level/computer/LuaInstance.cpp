@@ -96,13 +96,13 @@ int up(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
 	region.setBlock(originalPos, aboveBlock, 3, nullptr, nullptr);
 	region.setBlock(originalPos.above(), turtleBlock, 3, nullptr, nullptr);
 
-	GameEvent* blockChangeEvent = (GameEvent*)SlideAddress(0x5665208);
+	/*GameEvent* blockChangeEvent = (GameEvent*)SlideAddress(0x57C56B0);
 	region.postGameEvent(nullptr, *blockChangeEvent, originalPos, &turtleBlock);
-	region.postGameEvent(nullptr, *blockChangeEvent, originalPos.above(), &aboveBlock);
+	region.postGameEvent(nullptr, *blockChangeEvent, originalPos.above(), &aboveBlock);*/
 
-	Log::Info("mPacketSender 0x{:x}", *(uintptr_t*)region.mLevel->mPacketSender - GetMinecraftBaseAddress());
+	/*Log::Info("mPacketSender 0x{:x}", *(uintptr_t*)region.mLevel->mPacketSender - GetMinecraftBaseAddress());
 	TurtleActionPacket actionPacket = TurtleActionPacket();
-	region.mLevel->mPacketSender->sendBroadcast(actionPacket);
+	region.mLevel->mPacketSender->sendBroadcast(actionPacket);*/
 
 	return 0;
 }

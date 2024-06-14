@@ -27,12 +27,12 @@ ModFunction void Initialize(AmethystContext* ctx)
     events.registerBlocks.AddListener(&RegisterBlocks);
 	events.registerItems.AddListener(&RegisterItems);
 
-	hooks.RegisterFunction<&MinecraftPackets::createPacket>("40 53 48 83 EC ? 45 33 C0 48 8B D9 FF CA 81 FA");
-	hooks.CreateHook<&MinecraftPackets::createPacket>(_createPacket, &createPacket);
+	/*hooks.RegisterFunction<&MinecraftPackets::createPacket>("40 53 48 83 EC ? 45 33 C0 48 8B D9 FF CA 81 FA");
+	hooks.CreateHook<&MinecraftPackets::createPacket>(_createPacket, &createPacket);*/
 }
 
 void RegisterItems(ItemRegistry* registry) {
-	TURTLE_BLOCK_ITEM = registry->registerItemShared<BlockItem>("minecraft:turtle", TURTLE_BLOCK->getBlockItemId());
+	TURTLE_BLOCK_ITEM = registry->registerItemShared<BlockItem>("minecraft:turtle", TURTLE_BLOCK->getBlockItemId(), HashedString::EMPTY);
 }
 
 void RegisterBlocks(BlockDefinitionGroup* blockDef) {
