@@ -12,7 +12,10 @@ SafetyHookInline _createPacket;
 std::shared_ptr<Packet> createPacket(MinecraftPacketIds id) {
 	if (id > MinecraftPacketIds::EndId) {
 		Log::Info("Recieved packet with id {}", (int)id);
-		return std::make_shared<TurtleActionPacket>();
+
+		auto shared = std::make_shared<TurtleActionPacket>();
+		shared->mHandler = (const IPacketHandlerDispatcher*)0xDEADBEEF;
+		return shared;
 	}
 
 	return _createPacket.call<std::shared_ptr<Packet>>(id);
@@ -27,8 +30,8 @@ ModFunction void Initialize(AmethystContext* ctx)
     events.registerBlocks.AddListener(&RegisterBlocks);
 	events.registerItems.AddListener(&RegisterItems);
 
-	/*hooks.RegisterFunction<&MinecraftPackets::createPacket>("40 53 48 83 EC ? 45 33 C0 48 8B D9 FF CA 81 FA");
-	hooks.CreateHook<&MinecraftPackets::createPacket>(_createPacket, &createPacket);*/
+	hooks.RegisterFunction<&MinecraftPackets::createPacket>("40 53 48 83 EC ? 45 33 C0 48 8B D9 FF CA 81 FA");
+	hooks.CreateHook<&MinecraftPackets::createPacket>(_createPacket, &createPacket);
 }
 
 void RegisterItems(ItemRegistry* registry) {

@@ -4,6 +4,11 @@ class TurtleActionPacket : public Packet {
 public:
 	TurtleActionPacket() : Packet() {}
 
+	virtual ~TurtleActionPacket() {
+		Log::Info("~TurtleActionPacket");
+		Packet::~Packet();
+	}
+
 	virtual MinecraftPacketIds getId() const override {
 		Log::Info("getId :)");
 		return (MinecraftPacketIds)((int)MinecraftPacketIds::EndId + 1);
@@ -21,6 +26,11 @@ public:
 
 	virtual void write(BinaryStream& binaryStream) override {
 		Log::Info("TurtleActionPacket::write");
+	}
+
+	virtual Bedrock::Result<void, std::error_code> read(ReadOnlyBinaryStream& stream) override {
+		Log::Info("read");
+		return Packet::read(stream);
 	}
 
 	virtual Bedrock::Result<void, std::error_code> _read(ReadOnlyBinaryStream&) override {
