@@ -3,6 +3,23 @@
 #include <minecraft/src/common/world/level/chunk/LevelChunk.hpp>
 #include <minecraft/src/common/world/level/block/Block.hpp>
 #include <src/common/network/packet/TurtleActionPacket.hpp>
+#include <minecraft/src/common/network/PacketHandlerDispatcherInstance.hpp>
+#include <minecraft/src-client/common/client/network/ClientNetworkHandler.hpp>
+
+template <>
+class PacketHandlerDispatcherInstance<TurtleActionPacket, false> : public IPacketHandlerDispatcher {
+public:
+	virtual void handle(const NetworkIdentifier& networkId, NetEventCallback& netEvent, std::shared_ptr<Packet>) const {
+		// I am making the assumption here that netEvent is an instance of ClientNetworkHandler 
+		// This assumption only really works because this packet is only sent from: server => client
+		ClientNetworkHandler& clientHandler = (ClientNetworkHandler&)netEvent;
+		
+		// Handle the packet
+		Log::Info("mLevel->isClientSide: {}", clientHandler.mLevel->isClientSide ? "true" : "false");
+	}
+};
+
+static PacketHandlerDispatcherInstance<TurtleActionPacket, false> turtleActionHandler;
 
 WeakPtr<TurtleBlock> TURTLE_BLOCK;
 WeakPtr<BlockItem> TURTLE_BLOCK_ITEM;
@@ -14,7 +31,7 @@ std::shared_ptr<Packet> createPacket(MinecraftPacketIds id) {
 		Log::Info("Recieved packet with id {}", (int)id);
 
 		auto shared = std::make_shared<TurtleActionPacket>();
-		shared->mHandler = (const IPacketHandlerDispatcher*)0xDEADBEEF;
+		shared->mHandler = &turtleActionHandler;
 		return shared;
 	}
 

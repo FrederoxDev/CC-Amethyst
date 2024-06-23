@@ -34,6 +34,7 @@ public:
 	}
 
 	virtual Bedrock::Result<void, std::error_code> _read(ReadOnlyBinaryStream&) override {
-		Assert("_read");
+		Log::Info("_read!");
+		return Bedrock::Result<void, std::error_code>();
 	}
 }; 
