@@ -14,8 +14,9 @@ public:
 		// This assumption only really works because this packet is only sent from: server => client
 		ClientNetworkHandler& clientHandler = (ClientNetworkHandler&)netEvent;
 		
-		// Handle the packet
-		Log::Info("mLevel->isClientSide: {}", clientHandler.mLevel->isClientSide ? "true" : "false");
+		// Send an event to the BlockActor on the client to play the move animation..
+		// Todo: Work out how to actually send data through Packets lol
+		BlockSource* region = clientHandler.mClient.getRegion();
 	}
 };
 

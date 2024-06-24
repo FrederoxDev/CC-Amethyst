@@ -1,21 +1,19 @@
 #include <minecraft/src/common/network/packet/Packet.hpp>
+#include <minecraft/src/common/world/phys/Vec3.hpp>
 
 class TurtleActionPacket : public Packet {
 public:
-	TurtleActionPacket() : Packet() {}
+	BlockPos mTurtlePosBefore;
+	BlockPos mTurtlePosTo;
 
-	virtual ~TurtleActionPacket() {
-		Log::Info("~TurtleActionPacket");
-		Packet::~Packet();
-	}
+public:
+	TurtleActionPacket() : Packet(), mTurtlePosBefore(0, 0, 0), mTurtlePosTo(0, 0, 0) {}
 
 	virtual MinecraftPacketIds getId() const override {
-		Log::Info("getId :)");
 		return (MinecraftPacketIds)((int)MinecraftPacketIds::EndId + 1);
 	}
 
 	virtual std::string getName() const override {
-		Log::Info("getName");
 		return "TurtleActionPacket";
 	}
 
@@ -24,17 +22,20 @@ public:
 		return Packet::checkSize(packetSize, receiverIsServer);
 	}
 
-	virtual void write(BinaryStream& binaryStream) override {
-		Log::Info("TurtleActionPacket::write");
+	virtual void write(BinaryStream& stream) override {
+		stream.write(mTurtlePosBefore);
+		stream.write(mTurtlePosTo);
 	}
 
 	virtual Bedrock::Result<void, std::error_code> read(ReadOnlyBinaryStream& stream) override {
-		Log::Info("read");
+		mTurtlePosBefore = stream.get<BlockPos>().value();
+		mTurtlePosTo = stream.get<BlockPos>().value();
+
+		Log::Info("[read] before: {}, to: {}", mTurtlePosBefore, mTurtlePosTo);
 		return Packet::read(stream);
 	}
 
-	virtual Bedrock::Result<void, std::error_code> _read(ReadOnlyBinaryStream&) override {
-		Log::Info("_read!");
+	virtual Bedrock::Result<void, std::error_code> _read(ReadOnlyBinaryStream& stream) override {
 		return Bedrock::Result<void, std::error_code>();
 	}
 }; 

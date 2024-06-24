@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 project(CC-Bedrock CXX ASM_NASM) 
 set(MOD_VERSION "0.1.0")
 set(MOD_AUTHOR "FrederoxDev")
-
+ 
 # Amethyst Minecraft Folder
 set(AmethystFolder "$ENV{localappdata}/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/amethyst/") 
 

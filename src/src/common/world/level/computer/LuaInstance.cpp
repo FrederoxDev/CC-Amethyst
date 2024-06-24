@@ -102,6 +102,8 @@ int up(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
 
 	Log::Info("mPacketSender 0x{:x}", *(uintptr_t*)region.mLevel->mPacketSender - GetMinecraftBaseAddress());
 	TurtleActionPacket actionPacket = TurtleActionPacket();
+	actionPacket.mTurtlePosBefore = originalPos;
+	actionPacket.mTurtlePosTo = originalPos.above();
 	region.mLevel->mPacketSender->sendBroadcast(actionPacket);
 
 	return 0;
