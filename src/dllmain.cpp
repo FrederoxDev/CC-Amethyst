@@ -8,6 +8,7 @@
 #include <minecraft/src-client/common/client/renderer/blockActor/BlockActorRendererDispatcher.hpp>
 #include "src/common/world/level/turtle/TurtleAnimationManager.hpp"
 #include "src-client/common/client/renderer/blockactor/TurtleRenderer.hpp"
+#include <minecraft/src-client/common/client/renderer/block/BlockGraphics.hpp>
 
 template <>
 class PacketHandlerDispatcherInstance<TurtleMovePacket, false> : public IPacketHandlerDispatcher {
@@ -66,6 +67,22 @@ void initializeBlockEntityRenderers(
 	self->mRenderers[(BlockActorRendererId)26] = std::make_unique<TurtleRenderer>();
 }
 
+SafetyHookInline _initBlocks;
+
+void initBlocks(void* a1, void* a2) {
+	Log::Info("initBlocks");
+	_initBlocks.call<void>(a1, a2);
+
+	HashedString hashedIdentifier("minecraft:turtle");
+	BlockGraphics* graphics = BlockGraphics::createBlockGraphics(hashedIdentifier, BlockShape::INVISIBLE);
+
+	if (graphics->mTextureItems.size() == 0) {
+		graphics->setTextureItem("diamond_block", "diamond_block", "diamond_block", "diamond_block", "diamond_block", "diamond_block");
+	}
+
+	graphics->setDefaultCarriedTextures();
+}
+
 ModFunction void Initialize(AmethystContext* ctx) 
 {
 	InitializeVtablePtrs();
@@ -80,6 +97,9 @@ ModFunction void Initialize(AmethystContext* ctx)
 
 	hooks.RegisterFunction<&BlockActorRenderDispatcher::initializeBlockEntityRenderers>("40 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 4D 8B F9 49 8B F8 48 89 55");
 	hooks.CreateHook<&BlockActorRenderDispatcher::initializeBlockEntityRenderers>(_initializeBlockEntityRenderers, &initializeBlockEntityRenderers);
+
+	hooks.RegisterFunction<&BlockGraphics::initBlocks>("48 89 5C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 4C 8B E2 48 89 95 ? ? ? ? 4C 8B F9 48 89 4D");
+	hooks.CreateHook<&BlockGraphics::initBlocks>(_initBlocks, &initBlocks);
 }
 
 void RegisterItems(ItemRegistry* registry) {

@@ -8,6 +8,7 @@ class TurtleMoveAnimation {
 public:
 	BlockPos mTurtleStartPos;
 	BlockPos mTurtleEndPos;
+	std::chrono::milliseconds mStartTimestamp;
 
 public:
 	TurtleMoveAnimation();

@@ -3,13 +3,13 @@
 std::unordered_map<BlockPos, TurtleMoveAnimation> TurtleAnimationManager::mTurtleMovementAnimations{};
 
 TurtleMoveAnimation::TurtleMoveAnimation()
-	: mTurtleStartPos(0, 0, 0), mTurtleEndPos(0, 0, 0)
+	: mTurtleStartPos(0, 0, 0), mTurtleEndPos(0, 0, 0), mStartTimestamp(0)
 {
 	
 }
 
 TurtleMoveAnimation::TurtleMoveAnimation(TurtleMovePacket& packet)
-	: mTurtleStartPos(packet.mTurtlePosBefore), mTurtleEndPos(packet.mTurtlePosTo)
+	: mTurtleStartPos(packet.mTurtlePosBefore), mTurtleEndPos(packet.mTurtlePosTo), mStartTimestamp(packet.mStartTimestamp)
 {
 
 }

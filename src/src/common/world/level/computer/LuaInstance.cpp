@@ -104,9 +104,14 @@ int up(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
 	//region.postGameEvent(nullptr, *blockChangeEvent, originalPos, &turtleBlock);
 	//region.postGameEvent(nullptr, *blockChangeEvent, originalPos.above(), &aboveBlock);*/
 
+	auto epoc = std::chrono::system_clock::now().time_since_epoch();
+	uint64_t startTimestamp = std::chrono::duration_cast<std::chrono::milliseconds>(epoc).count();
+
 	TurtleMovePacket actionPacket = TurtleMovePacket();
 	actionPacket.mTurtlePosBefore = originalPos;
 	actionPacket.mTurtlePosTo = originalPos.above();
+	actionPacket.mStartTimestamp = startTimestamp;
+
 	region.mLevel->mPacketSender->sendBroadcast(actionPacket);
 
 	return 0;

@@ -7,6 +7,7 @@ class TurtleMovePacket : public Packet {
 public:
 	BlockPos mTurtlePosBefore;
 	BlockPos mTurtlePosTo;
+	uint64_t mStartTimestamp;
 
 public:
 	TurtleMovePacket() : Packet(), mTurtlePosBefore(0, 0, 0), mTurtlePosTo(0, 0, 0) {}
@@ -27,13 +28,15 @@ public:
 	virtual void write(BinaryStream& stream) override {
 		stream.write(mTurtlePosBefore);
 		stream.write(mTurtlePosTo);
+		stream.write(mStartTimestamp);
 	}
 
 	virtual Bedrock::Result<void, std::error_code> read(ReadOnlyBinaryStream& stream) override {
 		mTurtlePosBefore = stream.get<BlockPos>().value();
 		mTurtlePosTo = stream.get<BlockPos>().value();
+		mStartTimestamp = stream.get<uint64_t>().value();
 
-		Log::Info("[read] before: {}, to: {}", mTurtlePosBefore, mTurtlePosTo);
+		Log::Info("[read] before: {}, to: {}, at: {:d}", mTurtlePosBefore, mTurtlePosTo, mStartTimestamp);
 		return Packet::read(stream);
 	}
 
