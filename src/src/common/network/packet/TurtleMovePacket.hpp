@@ -1,20 +1,22 @@
+#pragma once
 #include <minecraft/src/common/network/packet/Packet.hpp>
 #include <minecraft/src/common/world/phys/Vec3.hpp>
+#include <minecraft/src/common/world/level/BlockPos.hpp>
 
-class TurtleActionPacket : public Packet {
+class TurtleMovePacket : public Packet {
 public:
 	BlockPos mTurtlePosBefore;
 	BlockPos mTurtlePosTo;
 
 public:
-	TurtleActionPacket() : Packet(), mTurtlePosBefore(0, 0, 0), mTurtlePosTo(0, 0, 0) {}
+	TurtleMovePacket() : Packet(), mTurtlePosBefore(0, 0, 0), mTurtlePosTo(0, 0, 0) {}
 
 	virtual MinecraftPacketIds getId() const override {
 		return (MinecraftPacketIds)((int)MinecraftPacketIds::EndId + 1);
 	}
 
 	virtual std::string getName() const override {
-		return "TurtleActionPacket";
+		return "TurtleMovePacket";
 	}
 
 	virtual Bedrock::Result<void, std::error_code> checkSize(uint64_t packetSize, bool receiverIsServer) const override {

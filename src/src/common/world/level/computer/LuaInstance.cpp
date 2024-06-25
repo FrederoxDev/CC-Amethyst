@@ -2,7 +2,7 @@
 #include "LuaInstanceManager.hpp"
 #include <minecraft/src/common/network/LoopbackPacketSender.hpp>
 #include "src/common/world/level/block/actor/TurtleBlockActor.hpp"
-#include <src/common/network/packet/TurtleActionPacket.hpp>
+#include <src/common/network/packet/TurtleMovePacket.hpp>
 
 LuaInstance::~LuaInstance()
 {
@@ -93,15 +93,18 @@ int up(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
 	}
 
 	LuaInstanceManager::MoveInstance(originalPos, originalPos.above());
-	region.setBlock(originalPos, aboveBlock, 3, nullptr, nullptr);
+
+	//GameEvent* blockChangeEvent = (GameEvent*)SlideAddress(0x57C56B0);
+	//region.postGameEvent(nullptr, *blockChangeEvent, originalPos, nullptr);*/
+
+	region.removeBlock(originalPos);
 	region.setBlock(originalPos.above(), turtleBlock, 3, nullptr, nullptr);
 
-	/*GameEvent* blockChangeEvent = (GameEvent*)SlideAddress(0x57C56B0);
-	region.postGameEvent(nullptr, *blockChangeEvent, originalPos, &turtleBlock);
-	region.postGameEvent(nullptr, *blockChangeEvent, originalPos.above(), &aboveBlock);*/
+	
+	//region.postGameEvent(nullptr, *blockChangeEvent, originalPos, &turtleBlock);
+	//region.postGameEvent(nullptr, *blockChangeEvent, originalPos.above(), &aboveBlock);*/
 
-	Log::Info("mPacketSender 0x{:x}", *(uintptr_t*)region.mLevel->mPacketSender - GetMinecraftBaseAddress());
-	TurtleActionPacket actionPacket = TurtleActionPacket();
+	TurtleMovePacket actionPacket = TurtleMovePacket();
 	actionPacket.mTurtlePosBefore = originalPos;
 	actionPacket.mTurtlePosTo = originalPos.above();
 	region.mLevel->mPacketSender->sendBroadcast(actionPacket);

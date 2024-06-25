@@ -1,8 +1,9 @@
 #pragma once
-#include "src/common/world/level/block/actor/TurtleBlockActor.hpp"
-#include "src/common/world/level/computer/LuaInstanceManager.hpp"
 #include <minecraft/src/common/world/level/block/BlockLegacy.hpp>
 #include <minecraft/src/common/world/level/dimension/Dimension.hpp>
+#include "src/common/world/level/block/actor/TurtleBlockActor.hpp"
+#include "src/common/world/level/computer/LuaInstanceManager.hpp"
+#include "src/common/world/level/turtle/TurtleAnimationManager.hpp"
 
 class TurtleBlock : public BlockLegacy {
 public: 
@@ -28,11 +29,25 @@ protected:
 			luaInstance->RunLua(R"(
 				
 			turtle.up()
-			turtle.up()
 
 			)");
 		}
 
 		return true;
 	}
+
+	/*virtual void onPlace(BlockSource& region, const BlockPos& pos) const override {
+		Log::Info("onPlace: {}", region.mLevel->isClientSide ? "client" : "server");
+		if (!region.mLevel->isClientSide) return;
+
+		auto animation = TurtleAnimationManager::TryConsumeAtPos(pos);
+		if (!animation.has_value()) {
+			Log::Info("tryConsumeAtPos had no value");
+			return;
+		}
+
+		TurtleMoveAnimation& moveAnim = animation.value();
+
+		Log::Info("onPlace animation {} {}", moveAnim.mTurtleStartPos, moveAnim.mTurtleEndPos);
+	}*/
 };

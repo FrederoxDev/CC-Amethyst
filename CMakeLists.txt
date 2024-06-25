@@ -25,7 +25,7 @@ file(GLOB_RECURSE ${PROJECT_NAME}_All
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.asm
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
-)
+) 
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_All})
 

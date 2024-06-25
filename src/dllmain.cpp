@@ -2,25 +2,42 @@
 #include <minecraft/src/common/world/level/block/registry/BlockTypeRegistry.hpp>
 #include <minecraft/src/common/world/level/chunk/LevelChunk.hpp>
 #include <minecraft/src/common/world/level/block/Block.hpp>
-#include <src/common/network/packet/TurtleActionPacket.hpp>
+#include <src/common/network/packet/TurtleMovePacket.hpp>
 #include <minecraft/src/common/network/PacketHandlerDispatcherInstance.hpp>
 #include <minecraft/src-client/common/client/network/ClientNetworkHandler.hpp>
+#include <minecraft/src-client/common/client/renderer/blockActor/BlockActorRendererDispatcher.hpp>
+#include "src/common/world/level/turtle/TurtleAnimationManager.hpp"
+#include "src-client/common/client/renderer/blockactor/TurtleRenderer.hpp"
 
 template <>
-class PacketHandlerDispatcherInstance<TurtleActionPacket, false> : public IPacketHandlerDispatcher {
+class PacketHandlerDispatcherInstance<TurtleMovePacket, false> : public IPacketHandlerDispatcher {
 public:
-	virtual void handle(const NetworkIdentifier& networkId, NetEventCallback& netEvent, std::shared_ptr<Packet>) const {
+	virtual void handle(const NetworkIdentifier& networkId, NetEventCallback& netEvent, std::shared_ptr<Packet> packet) const {
 		// I am making the assumption here that netEvent is an instance of ClientNetworkHandler 
 		// This assumption only really works because this packet is only sent from: server => client
-		ClientNetworkHandler& clientHandler = (ClientNetworkHandler&)netEvent;
-		
-		// Send an event to the BlockActor on the client to play the move animation..
-		// Todo: Work out how to actually send data through Packets lol
-		BlockSource* region = clientHandler.mClient.getRegion();
+		//ClientNetworkHandler& clientHandler = (ClientNetworkHandler&)netEvent;
+		//
+		//// Send an event to the BlockActor on the client to play the move animation..
+		//TurtleMovePacket* turtleMoveData = (TurtleMovePacket*)packet.get();
+
+		//BlockSource* region = clientHandler.mClient.getRegion();
+		//if (!region) {
+		//	Log::Warning("PacketHandlerDispatcherInstance<TurtleMovePacket>::handle recieved packet, but CI->getRegion() == nullptr");
+		//	return;
+		//}
+		//
+		//const Block& beforeBlock = region->getBlock(turtleMoveData->mTurtlePosBefore);
+		//const Block& afterBlock = region->getBlock(turtleMoveData->mTurtlePosTo);
+
+		//Log::Info("{}", beforeBlock.mLegacyBlock->mNameInfo.mFullName.getString());
+		//Log::Info("{}", afterBlock.mLegacyBlock->mNameInfo.mFullName.getString());
+
+		TurtleMovePacket& movementPacket = *(TurtleMovePacket*)packet.get();
+		TurtleAnimationManager::OnTurtleMovePacket(movementPacket);
 	}
 };
 
-static PacketHandlerDispatcherInstance<TurtleActionPacket, false> turtleActionHandler;
+static PacketHandlerDispatcherInstance<TurtleMovePacket, false> turtleActionHandler;
 
 WeakPtr<TurtleBlock> TURTLE_BLOCK;
 WeakPtr<BlockItem> TURTLE_BLOCK_ITEM;
@@ -31,12 +48,22 @@ std::shared_ptr<Packet> createPacket(MinecraftPacketIds id) {
 	if (id > MinecraftPacketIds::EndId) {
 		Log::Info("Recieved packet with id {}", (int)id);
 
-		auto shared = std::make_shared<TurtleActionPacket>();
+		auto shared = std::make_shared<TurtleMovePacket>();
 		shared->mHandler = &turtleActionHandler;
 		return shared;
 	}
 
 	return _createPacket.call<std::shared_ptr<Packet>>(id);
+}
+
+SafetyHookInline _initializeBlockEntityRenderers;
+
+void initializeBlockEntityRenderers(
+	BlockActorRenderDispatcher* self, void* a2, void* a3, void* a4, void* a5,
+	void* a6, void* a7, void* a8, void* a9
+) {
+	_initializeBlockEntityRenderers.call<void>(self, a2, a3, a4, a5, a6, a7, a8, a9);
+	self->mRenderers[(BlockActorRendererId)26] = std::make_unique<TurtleRenderer>();
 }
 
 ModFunction void Initialize(AmethystContext* ctx) 
@@ -50,6 +77,9 @@ ModFunction void Initialize(AmethystContext* ctx)
 
 	hooks.RegisterFunction<&MinecraftPackets::createPacket>("40 53 48 83 EC ? 45 33 C0 48 8B D9 FF CA 81 FA");
 	hooks.CreateHook<&MinecraftPackets::createPacket>(_createPacket, &createPacket);
+
+	hooks.RegisterFunction<&BlockActorRenderDispatcher::initializeBlockEntityRenderers>("40 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 4D 8B F9 49 8B F8 48 89 55");
+	hooks.CreateHook<&BlockActorRenderDispatcher::initializeBlockEntityRenderers>(_initializeBlockEntityRenderers, &initializeBlockEntityRenderers);
 }
 
 void RegisterItems(ItemRegistry* registry) {

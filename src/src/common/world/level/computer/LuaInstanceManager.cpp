@@ -35,6 +35,7 @@ LuaInstance& LuaInstanceManager::GetInstanceFromLua(lua_State* L)
 void LuaInstanceManager::MoveInstance(const BlockPos& from, const BlockPos& to)
 {
 	std::lock_guard<std::mutex> lock(mInstanceMapMutex);
+	Log::Info("MoveInstance");
 
 	auto it = mWorldPositionToLuaInstance.find(from);
 	if (it == mWorldPositionToLuaInstance.end()) {
