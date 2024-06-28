@@ -57,19 +57,17 @@ void initializeBlockEntityRenderers(
 ) {
 	self->mRenderers[(BlockActorRendererId)26] = std::make_unique<TurtleRenderer>();
 
-	HashedString modelName("geometry.cc_turtle");
-	auto sheepModel = geometryGroup->mGeometries.find(modelName);
+	HashedString turtleModelIdentifier("geometry.cc_turtle");
+	auto turtleModel = geometryGroup->mGeometries.find(turtleModelIdentifier);
 
-	if (sheepModel == geometryGroup->mGeometries.end()) {
+	if (turtleModel == geometryGroup->mGeometries.end()) {
 		Log::Info("Could not find geometry.cc_turtle");
 		return;
 	}
 
-	mTurtleMesh = sheepModel->second.get();
-
+	TurtleRenderer::TURTLE_GEOMETRY = turtleModel->second.get();
+	TurtleRenderer::TURTLE_TEXTURE = textures->getTexture("textures/entity/cc_turtle", true, std::nullopt, cg::TextureSetLayerType::Normal);
 	
-	//mTurtleTexture = textures->getTexture(resource, true, std::nullopt, cg::TextureSetLayerType::Normal);
-
 	_initializeBlockEntityRenderers.call<void>(self, geometryGroup, textures, a4, a5, a6, a7, a8, a9);
 }
 
@@ -96,19 +94,6 @@ ModFunction void Initialize(AmethystContext* ctx)
     events.registerBlocks.AddListener(&RegisterBlocks);
 	events.registerItems.AddListener(&RegisterItems);
 	events.initBlockGraphics.AddListener(&InitBlockGraphics);
-
-	events.beforeRenderUI.AddListener([](ScreenView*, UIRenderContext* ctx) {
-		static int hi = 0;
-
-		hi += 1;
-
-		if (hi >= 500) {
-			hi = 0;
-			ResourceLocation resource("textures/entity/cc_turtle");
-			mTurtleTexture = ctx->getTexture(&resource, true);
-		}
-		
-	});
 
 	// Hooks
 	hooks.RegisterFunction<&MinecraftPackets::createPacket>("40 53 48 83 EC ? 45 33 C0 48 8B D9 FF CA 81 FA");
