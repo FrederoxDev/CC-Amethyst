@@ -13,6 +13,8 @@
 #include "src/common/world/level/turtle/TurtleAnimationManager.hpp"
 #include "src-deps/lua_Include.hpp"
 
+static BlockActorRendererId turtleBlockActorRendererId;
+
 class TurtleBlockActor : public BlockActor {
 public:
 	LuaInstance* mLuaInstance;

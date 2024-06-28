@@ -1,0 +1,28 @@
+{
+    "format_version": 2,
+    "header": {
+      "name": "cc-tweaked",
+      "uuid": "cfa3f727-6c5b-42e1-8e64-bbd2d7473688",
+      "version": [
+        1,
+        0,
+        0
+      ],
+      "min_engine_version": [
+        1,
+        17,
+        0
+      ]
+    },
+    "modules": [
+      {
+        "type": "resources",
+        "uuid": "74bf8be3-4d1a-49d9-a5b7-ebf47af1d0bb",
+        "version": [
+          1,
+          0,
+          0
+        ]
+      }
+    ]
+  }

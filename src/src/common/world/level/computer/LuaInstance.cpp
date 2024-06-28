@@ -58,6 +58,12 @@ int cppFunctionBase(lua_State* L, LuaInstance::CppCallback callback) {
 	int returnCount = luaInstance.mReturnCount;
 	luaInstance.mReturnCount = 0;
 
+	if (luaInstance.mLuaSleepTimeMs != 0) {
+		Log::Info("turtle thread sleeping for {:d}", luaInstance.mLuaSleepTimeMs);
+		std::this_thread::sleep_for(std::chrono::milliseconds(luaInstance.mLuaSleepTimeMs));
+		luaInstance.mLuaSleepTimeMs = 0;
+	}
+
 	return returnCount;
 }
 
@@ -93,16 +99,8 @@ int up(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
 	}
 
 	LuaInstanceManager::MoveInstance(originalPos, originalPos.above());
-
-	//GameEvent* blockChangeEvent = (GameEvent*)SlideAddress(0x57C56B0);
-	//region.postGameEvent(nullptr, *blockChangeEvent, originalPos, nullptr);*/
-
 	region.removeBlock(originalPos);
 	region.setBlock(originalPos.above(), turtleBlock, 3, nullptr, nullptr);
-
-	
-	//region.postGameEvent(nullptr, *blockChangeEvent, originalPos, &turtleBlock);
-	//region.postGameEvent(nullptr, *blockChangeEvent, originalPos.above(), &aboveBlock);*/
 
 	auto epoc = std::chrono::system_clock::now().time_since_epoch();
 	uint64_t startTimestamp = std::chrono::duration_cast<std::chrono::milliseconds>(epoc).count();
@@ -114,6 +112,7 @@ int up(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
 
 	region.mLevel->mPacketSender->sendBroadcast(actionPacket);
 
+	lua.mLuaSleepTimeMs = 600;
 	return 0;
 }
 

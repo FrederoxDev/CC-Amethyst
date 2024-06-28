@@ -9,30 +9,15 @@
 #include "src/common/world/level/turtle/TurtleAnimationManager.hpp"
 #include "src-client/common/client/renderer/blockactor/TurtleRenderer.hpp"
 #include <minecraft/src-client/common/client/renderer/block/BlockGraphics.hpp>
+#include <minecraft/src-client/common/client/model/GeometryGroup.hpp>
+#include <minecraft/src-client/common/client/model/Geometry.hpp>
+
+AmethystContext* amethyst = nullptr;
 
 template <>
 class PacketHandlerDispatcherInstance<TurtleMovePacket, false> : public IPacketHandlerDispatcher {
 public:
 	virtual void handle(const NetworkIdentifier& networkId, NetEventCallback& netEvent, std::shared_ptr<Packet> packet) const {
-		// I am making the assumption here that netEvent is an instance of ClientNetworkHandler 
-		// This assumption only really works because this packet is only sent from: server => client
-		//ClientNetworkHandler& clientHandler = (ClientNetworkHandler&)netEvent;
-		//
-		//// Send an event to the BlockActor on the client to play the move animation..
-		//TurtleMovePacket* turtleMoveData = (TurtleMovePacket*)packet.get();
-
-		//BlockSource* region = clientHandler.mClient.getRegion();
-		//if (!region) {
-		//	Log::Warning("PacketHandlerDispatcherInstance<TurtleMovePacket>::handle recieved packet, but CI->getRegion() == nullptr");
-		//	return;
-		//}
-		//
-		//const Block& beforeBlock = region->getBlock(turtleMoveData->mTurtlePosBefore);
-		//const Block& afterBlock = region->getBlock(turtleMoveData->mTurtlePosTo);
-
-		//Log::Info("{}", beforeBlock.mLegacyBlock->mNameInfo.mFullName.getString());
-		//Log::Info("{}", afterBlock.mLegacyBlock->mNameInfo.mFullName.getString());
-
 		TurtleMovePacket& movementPacket = *(TurtleMovePacket*)packet.get();
 		TurtleAnimationManager::OnTurtleMovePacket(movementPacket);
 	}
@@ -59,20 +44,36 @@ std::shared_ptr<Packet> createPacket(MinecraftPacketIds id) {
 
 SafetyHookInline _initializeBlockEntityRenderers;
 
+extern BlockActorRendererId turtleBlockActorRendererId;
+extern GeometryInfo* mTurtleMesh;
+extern mce::TexturePtr mTurtleTexture;
+
 void initializeBlockEntityRenderers(
-	BlockActorRenderDispatcher* self, void* a2, void* a3, void* a4, void* a5,
+	BlockActorRenderDispatcher* self, 
+	const gsl::not_null<Bedrock::NonOwnerPointer<GeometryGroup>>& geometryGroup,
+	std::shared_ptr<mce::TextureGroup> textures, 
+	void* a4, void* a5,
 	void* a6, void* a7, void* a8, void* a9
 ) {
-	_initializeBlockEntityRenderers.call<void>(self, a2, a3, a4, a5, a6, a7, a8, a9);
 	self->mRenderers[(BlockActorRendererId)26] = std::make_unique<TurtleRenderer>();
+
+	HashedString modelName("geometry.cc_turtle");
+	auto sheepModel = geometryGroup->mGeometries.find(modelName);
+
+	if (sheepModel == geometryGroup->mGeometries.end()) {
+		Log::Info("Could not find geometry.cc_turtle");
+		return;
+	}
+
+	mTurtleMesh = sheepModel->second.get();
+
+	
+	//mTurtleTexture = textures->getTexture(resource, true, std::nullopt, cg::TextureSetLayerType::Normal);
+
+	_initializeBlockEntityRenderers.call<void>(self, geometryGroup, textures, a4, a5, a6, a7, a8, a9);
 }
 
-SafetyHookInline _initBlocks;
-
-void initBlocks(void* a1, void* a2) {
-	Log::Info("initBlocks");
-	_initBlocks.call<void>(a1, a2);
-
+void InitBlockGraphics(ResourcePackManager& resources, const Experiments& experiments) {
 	HashedString hashedIdentifier("minecraft:turtle");
 	BlockGraphics* graphics = BlockGraphics::createBlockGraphics(hashedIdentifier, BlockShape::INVISIBLE);
 
@@ -86,20 +87,35 @@ void initBlocks(void* a1, void* a2) {
 ModFunction void Initialize(AmethystContext* ctx) 
 {
 	InitializeVtablePtrs();
+	amethyst = ctx;
+
     Amethyst::EventManager& events = ctx->mEventManager;
 	HookManager hooks = ctx->mHookManager;
 
+	// Events
     events.registerBlocks.AddListener(&RegisterBlocks);
 	events.registerItems.AddListener(&RegisterItems);
+	events.initBlockGraphics.AddListener(&InitBlockGraphics);
 
+	events.beforeRenderUI.AddListener([](ScreenView*, UIRenderContext* ctx) {
+		static int hi = 0;
+
+		hi += 1;
+
+		if (hi >= 500) {
+			hi = 0;
+			ResourceLocation resource("textures/entity/cc_turtle");
+			mTurtleTexture = ctx->getTexture(&resource, true);
+		}
+		
+	});
+
+	// Hooks
 	hooks.RegisterFunction<&MinecraftPackets::createPacket>("40 53 48 83 EC ? 45 33 C0 48 8B D9 FF CA 81 FA");
 	hooks.CreateHook<&MinecraftPackets::createPacket>(_createPacket, &createPacket);
 
 	hooks.RegisterFunction<&BlockActorRenderDispatcher::initializeBlockEntityRenderers>("40 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 4D 8B F9 49 8B F8 48 89 55");
 	hooks.CreateHook<&BlockActorRenderDispatcher::initializeBlockEntityRenderers>(_initializeBlockEntityRenderers, &initializeBlockEntityRenderers);
-
-	hooks.RegisterFunction<&BlockGraphics::initBlocks>("48 89 5C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 4C 8B E2 48 89 95 ? ? ? ? 4C 8B F9 48 89 4D");
-	hooks.CreateHook<&BlockGraphics::initBlocks>(_initBlocks, &initBlocks);
 }
 
 void RegisterItems(ItemRegistry* registry) {

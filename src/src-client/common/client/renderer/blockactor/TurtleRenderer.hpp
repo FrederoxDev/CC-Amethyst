@@ -1,6 +1,9 @@
 #pragma once
 #include <minecraft/src-client/common/client/renderer/blockActor/BlockActorRenderer.hpp>
 #include <minecraft/src/common/world/phys/Vec3.hpp>
+#include <minecraft/src-client/common/client/model/Geometry.hpp>
+#include <minecraft/src-client/common/client/model/GeometryInfo.hpp>
+#include <minecraft/src-deps/minecraftrenderer/renderer/BedrockTexture.hpp>
 
 std::array<Vec3, 8> cubeVertexes = {
 	Vec3(0, 0, 0),
@@ -23,6 +26,9 @@ std::array<std::array<char, 4>, 6> cubeFaces = { {
 }};
 
 constexpr int turtleMoveDuration = 600; // ms
+
+static GeometryInfo* mTurtleMesh;
+static mce::TexturePtr mTurtleTexture;
 
 class TurtleRenderer : public BlockActorRenderer {
 public:
@@ -54,24 +60,25 @@ public:
 
 			Vec3 position = Vec3::lerp(anim.mTurtleStartPos, anim.mTurtleEndPos, t);
 			Vec3 renderPos = position - *playerPos;
-			matrix.translate(renderPos.x, renderPos.y, renderPos.z);
+			matrix.translate(renderPos.x + 0.5f, renderPos.y, renderPos.z + 0.5f);
 		}
 		else {
-			matrix.translate(data.position.x, data.position.y, data.position.z);
+			matrix.translate(data.position.x + 0.5f, data.position.y, data.position.z + 0.5f);
 		}
 
-		turtleMesh.renderMesh(ctx.mScreenContext, material);
+		turtleMesh.renderMesh(*ctx.mScreenContext, *material, mTurtleTexture);
 		matrix = originalMatrix;
 	}
 
-	mce::Mesh constructTurtleMesh(BaseActorRenderContext& ctx) {
+	__declspec(noinline) mce::Mesh constructTurtleMesh(BaseActorRenderContext& ctx) {
 		Tessellator& tess = ctx.mScreenContext->tessellator;
+		tess.begin(mce::PrimitiveMode::QuadList, 1000);
 
-		tess.begin(mce::PrimitiveMode::QuadList, 6);
+		auto& nodes = mTurtleMesh->mPtr->mNodes;
 
-		for (auto& vertexes : cubeFaces) {
-			for (auto index : vertexes) {
-				tess.vertex(cubeVertexes[index]);
+		for (auto& node : nodes) {
+			for (auto& box : node.second.mBoxes) {
+				box.Tessellate(tess, 64, 64);
 			}
 		}
 

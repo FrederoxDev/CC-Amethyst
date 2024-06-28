@@ -19,6 +19,7 @@ public:
     CppCallback mInternalCppCallback;
     int mReturnCount = 0;
     bool mIsRunning;
+    uint32_t mLuaSleepTimeMs = 0;
 
     ~LuaInstance();
     LuaInstance();

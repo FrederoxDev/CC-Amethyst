@@ -28,7 +28,12 @@ protected:
 			LuaInstance* luaInstance = LuaInstanceManager::GetOrCreateInstanceAt(pos);
 			luaInstance->RunLua(R"(
 				
-			turtle.up()
+			if turtle.inspectDown() == "minecraft:grass_block" then
+				turtle.up()
+				turtle.up()
+			else
+				turtle.up()
+			end
 
 			)");
 		}
