@@ -59,7 +59,7 @@ public:
 			float t = timeElapsed / (float)turtleMoveDuration;
 
 			Vec3 position = Vec3::lerp(anim.mTurtleStartPos, anim.mTurtleEndPos, t);
-			Vec3 renderPos = position - *playerPos;
+			Vec3 renderPos = position - ctx.mCameraPosition;
 			matrix.translate(renderPos.x + 0.5f, renderPos.y, renderPos.z + 0.5f);
 		}
 		else {
