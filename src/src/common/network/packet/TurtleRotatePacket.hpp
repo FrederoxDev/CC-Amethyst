@@ -3,37 +3,39 @@
 #include <minecraft/src/common/world/phys/Vec3.hpp>
 #include <minecraft/src/common/world/level/BlockPos.hpp>
 
-class TurtleMovePacket : public Packet {
+class TurtleRotatePacket : public Packet {
 public:
-	BlockPos mTurtlePosBefore;
-	BlockPos mTurtlePosTo;
+	BlockPos mTurtlePos;
+	FacingID mOldDir;
+	FacingID mNewDir;
 	uint64_t mTimestamp;
 
 public:
-	TurtleMovePacket() 
-		: Packet(), mTurtlePosBefore(0, 0, 0), mTurtlePosTo(0, 0, 0), mTimestamp(0) 
+	TurtleRotatePacket() 
+		: Packet(), mOldDir(FacingID::NORTH), mNewDir(FacingID::NORTH), mTimestamp(0), mTurtlePos(0, 0, 0)
 	{}
 
 	virtual MinecraftPacketIds getId() const override {
-		return (MinecraftPacketIds)((int)MinecraftPacketIds::EndId + 1);
+		return (MinecraftPacketIds)((int)MinecraftPacketIds::EndId + 2);
 	}
 
 	virtual std::string getName() const override {
-		return "TurtleMovePacket";
+		return "TurtleRotatePacket";
 	}
 
 	virtual void write(BinaryStream& stream) override {
-		stream.write(mTurtlePosBefore);
-		stream.write(mTurtlePosTo);
+		stream.write(mTurtlePos);
+		stream.write(mOldDir);
+		stream.write(mNewDir);
 		stream.write(mTimestamp);
 	}
 
 	virtual Bedrock::Result<void, std::error_code> read(ReadOnlyBinaryStream& stream) override {
-		mTurtlePosBefore = stream.get<BlockPos>().value();
-		mTurtlePosTo = stream.get<BlockPos>().value();
+		mTurtlePos = stream.get<BlockPos>().value();
+		mOldDir = stream.get<FacingID>().value();
+		mNewDir = stream.get<FacingID>().value();
 		mTimestamp = stream.get<uint64_t>().value();
 
-		Log::Info("[read] before: {}, to: {}, at: {:d}", mTurtlePosBefore, mTurtlePosTo, mTimestamp);
 		return Packet::read(stream);
 	}
 

@@ -2,7 +2,8 @@
 #include "LuaInstanceManager.hpp"
 #include <minecraft/src/common/network/LoopbackPacketSender.hpp>
 #include "src/common/world/level/block/actor/TurtleBlockActor.hpp"
-#include <src/common/network/packet/TurtleMovePacket.hpp>
+#include "src/common/network/packet/TurtleMovePacket.hpp"
+#include "src/common/world/level/computer/modules/TurtleModule.hpp"
 
 LuaInstance::~LuaInstance()
 {
@@ -42,83 +43,6 @@ void LuaInstance::RunLua(const std::string& code)
 	mLuaThread = std::thread(&LuaInstance::_RunLua, this, code);
 }
 
-int cppFunctionBase(lua_State* L, LuaInstance::CppCallback callback) {
-	LuaInstance& luaInstance = LuaInstanceManager::GetInstanceFromLua(L);
-
-	// We need to wait for the main thread in order to continue
-	// We don't want to run MC code on a different thread to prevent UB
-	{
-		std::unique_lock<std::mutex> lock(luaInstance.mLuaMutex);
-		luaInstance.mWaitingForMain = true;
-		luaInstance.mInternalCppCallback = callback;
-		luaInstance.mCv.wait(lock, [&]() { return !luaInstance.mWaitingForMain; });
-	}
-
-	// Get the response from the main thread and return it
-	int returnCount = luaInstance.mReturnCount;
-	luaInstance.mReturnCount = 0;
-
-	if (luaInstance.mLuaSleepTimeMs != 0) {
-		Log::Info("turtle thread sleeping for {:d}", luaInstance.mLuaSleepTimeMs);
-		std::this_thread::sleep_for(std::chrono::milliseconds(luaInstance.mLuaSleepTimeMs));
-		luaInstance.mLuaSleepTimeMs = 0;
-	}
-
-	return returnCount;
-}
-
-int inspectUp(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
-	const Block& block = region.getBlock(turtle.mPosition.above());
-	lua_pushstring(lua.mL, block.mLegacyBlock->mNameInfo.mFullName.c_str());
-	return 1;
-}
-
-int _inspectUp(lua_State* L) {
-	return cppFunctionBase(L, inspectUp);
-}
-
-int inspectDown(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
-	const Block& block = region.getBlock(turtle.mPosition.below());
-	lua_pushstring(lua.mL, block.mLegacyBlock->mNameInfo.mFullName.c_str());
-	return 1;
-}
-
-int _inspectDown(lua_State* L) {
-	return cppFunctionBase(L, inspectDown);
-}
-
-int up(LuaInstance& lua, TurtleBlockActor& turtle, BlockSource& region) {
-	const Block& turtleBlock = region.getBlock(turtle.mPosition);
-	const Block& aboveBlock = region.getBlock(turtle.mPosition.above());
-	BlockPos originalPos = turtle.mPosition;
-	 
-	// check if the block is air
-	// it probably makes sense to allow moving through other blocks, but for now this is fine
-	if (aboveBlock.mLegacyBlock->mNameInfo.mFullName.getHash() != HashedString::computeHash("minecraft:air")) {
-		return 0;
-	}
-
-	LuaInstanceManager::MoveInstance(originalPos, originalPos.above());
-	region.removeBlock(originalPos);
-	region.setBlock(originalPos.above(), turtleBlock, 3, nullptr, nullptr);
-
-	auto epoc = std::chrono::system_clock::now().time_since_epoch();
-	uint64_t startTimestamp = std::chrono::duration_cast<std::chrono::milliseconds>(epoc).count();
-
-	TurtleMovePacket actionPacket = TurtleMovePacket();
-	actionPacket.mTurtlePosBefore = originalPos;
-	actionPacket.mTurtlePosTo = originalPos.above();
-	actionPacket.mStartTimestamp = startTimestamp;
-
-	region.mLevel->mPacketSender->sendBroadcast(actionPacket);
-
-	lua.mLuaSleepTimeMs = 600;
-	return 0;
-}
-
-int _up(lua_State* L) {
-	return cppFunctionBase(L, up);
-}
  
 void LuaInstance::_InitializeLuaInstance()
 {
@@ -127,19 +51,7 @@ void LuaInstance::_InitializeLuaInstance()
 	mL = luaL_newstate();
 	luaL_openlibs(mL);
 
-	// register functions here
-	lua_newtable(mL);
-
-	lua_pushcfunction(mL, _inspectUp);
-	lua_setfield(mL, -2, "inspectUp");
-
-	lua_pushcfunction(mL, _inspectDown);
-	lua_setfield(mL, -2, "inspectDown");
-
-	lua_pushcfunction(mL, _up);
-	lua_setfield(mL, -2, "up");
-
-	lua_setglobal(mL, "turtle");
+	TurtleModule().RegisterModule(mL);
 
 	// Setup ptr to this inside lua instance
 	lua_pushlightuserdata(mL, this);

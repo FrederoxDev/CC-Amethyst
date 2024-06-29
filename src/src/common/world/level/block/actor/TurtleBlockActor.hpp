@@ -17,13 +17,19 @@ static BlockActorRendererId turtleBlockActorRendererId;
 
 class TurtleBlockActor : public BlockActor {
 public:
+	static BlockActorRendererId TURTLE_RENDERER_ID;
+
 	LuaInstance* mLuaInstance;
-	std::optional<TurtleMoveAnimation> mMoveAnimation;
+	std::variant<std::monostate, TurtleMoveAnimation, TurtleRotateAnimation> mAnimation;
+
+	// No persistent data should be placed here as a member variable
+	// Data here is wiped on turtle move
+	FacingID mTurtleRot;
 
 	TurtleBlockActor(BlockActorType type, const BlockPos& pos, const std::string& id)
-		: BlockActor(type, pos, id)
+		: BlockActor(type, pos, id), mTurtleRot(FacingID::NORTH)
 	{
-		mRendererId = (BlockActorRendererId)26;
+		mRendererId = TURTLE_RENDERER_ID;
 		mLuaInstance = nullptr;
 	};
 

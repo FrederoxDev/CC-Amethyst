@@ -1,4 +1,5 @@
 #include "TurtleAnimationManager.hpp"
+#include <src/common/network/packet/TurtleRotatePacket.hpp>
 
 std::unordered_map<BlockPos, TurtleMoveAnimation> TurtleAnimationManager::mTurtleMovementAnimations{};
 
@@ -9,7 +10,7 @@ TurtleMoveAnimation::TurtleMoveAnimation()
 }
 
 TurtleMoveAnimation::TurtleMoveAnimation(TurtleMovePacket& packet)
-	: mTurtleStartPos(packet.mTurtlePosBefore), mTurtleEndPos(packet.mTurtlePosTo), mStartTimestamp(packet.mStartTimestamp)
+	: mTurtleStartPos(packet.mTurtlePosBefore), mTurtleEndPos(packet.mTurtlePosTo), mStartTimestamp(packet.mTimestamp)
 {
 
 }
@@ -19,7 +20,7 @@ void TurtleAnimationManager::OnTurtleMovePacket(TurtleMovePacket& packet)
 	mTurtleMovementAnimations[packet.mTurtlePosTo] = TurtleMoveAnimation(packet);
 }
 
-std::optional<TurtleMoveAnimation> TurtleAnimationManager::TryConsumeAtPos(const BlockPos& position)
+std::optional<TurtleMoveAnimation> TurtleAnimationManager::TryConsumeMovementPacket(const BlockPos& position)
 {
 	auto it = mTurtleMovementAnimations.find(position);
 	if (it == mTurtleMovementAnimations.end()) return std::nullopt;
@@ -28,4 +29,9 @@ std::optional<TurtleMoveAnimation> TurtleAnimationManager::TryConsumeAtPos(const
 	mTurtleMovementAnimations.erase(it);
 
 	return moveAnimation;
+}
+
+TurtleRotateAnimation::TurtleRotateAnimation(TurtleRotatePacket& packet)
+	: mTurtlePos(packet.mTurtlePos), mOldDir(packet.mOldDir), mNewDir(packet.mNewDir), mTimestamp(packet.mTimestamp)
+{
 }

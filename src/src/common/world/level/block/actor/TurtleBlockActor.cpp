@@ -1,17 +1,16 @@
 #include "TurtleBlockActor.hpp"
 
+BlockActorRendererId TurtleBlockActor::TURTLE_RENDERER_ID;
+
 void TurtleBlockActor::onPlace(BlockSource& region)
 {
 	if (!region.mLevel->isClientSide) return;
 
-	// Get any movement animations
-	auto optionalAnim = TurtleAnimationManager::TryConsumeAtPos(mPosition);
-	if (!optionalAnim) return;
+	// Check for any movement packets
+	auto optionalAnimation = TurtleAnimationManager::TryConsumeMovementPacket(mPosition);
+	if (!optionalAnimation) return;
 
-	TurtleMoveAnimation& moveAnimation = optionalAnim.value();
-	mMoveAnimation = optionalAnim;
-
-	Log::Info("TurtleBlockActor::onPlace {} {}", moveAnimation.mTurtleStartPos, moveAnimation.mTurtleEndPos);
+	mAnimation = optionalAnimation.value();
 }
 
 void TurtleBlockActor::tick(BlockSource& region)

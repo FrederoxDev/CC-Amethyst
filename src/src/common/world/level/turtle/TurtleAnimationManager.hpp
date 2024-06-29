@@ -3,6 +3,7 @@
 #include <memory>
 #include <minecraft/src/common/world/level/BlockPos.hpp>
 #include "src/common/network/packet/TurtleMovePacket.hpp"
+#include <src/common/network/packet/TurtleRotatePacket.hpp>
 
 class TurtleMoveAnimation {
 public:
@@ -13,6 +14,19 @@ public:
 public:
 	TurtleMoveAnimation();
 	TurtleMoveAnimation(TurtleMovePacket& packet);
+	TurtleMoveAnimation& operator=(const TurtleMoveAnimation& other) = default;
+};
+
+class TurtleRotateAnimation {
+public:
+	BlockPos mTurtlePos;
+	FacingID mOldDir;
+	FacingID mNewDir;
+	std::chrono::milliseconds mTimestamp;
+
+public:
+	TurtleRotateAnimation(TurtleRotatePacket& packet);
+	TurtleRotateAnimation& operator=(const TurtleRotateAnimation& other) = default;
 };
 
 class TurtleAnimationManager {
@@ -21,5 +35,5 @@ private:
 
 public:
 	static void OnTurtleMovePacket(TurtleMovePacket& packet);
-	static std::optional<TurtleMoveAnimation> TryConsumeAtPos(const BlockPos& position);
+	static std::optional<TurtleMoveAnimation> TryConsumeMovementPacket(const BlockPos& position);
 };

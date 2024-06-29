@@ -25,34 +25,15 @@ protected:
 		BlockSource& region = dimension.getBlockSourceFromMainChunkSource();
 
 		if (!region.mLevel->isClientSide) {
+
 			LuaInstance* luaInstance = LuaInstanceManager::GetOrCreateInstanceAt(pos);
 			luaInstance->RunLua(R"(
 				
-			if turtle.inspectDown() == "minecraft:grass_block" then
-				turtle.up()
-				turtle.up()
-			else
-				turtle.up()
-			end
+			turtle.turnLeft()
 
-			)");
+			)");  
 		}
 
 		return true;
 	}
-
-	/*virtual void onPlace(BlockSource& region, const BlockPos& pos) const override {
-		Log::Info("onPlace: {}", region.mLevel->isClientSide ? "client" : "server");
-		if (!region.mLevel->isClientSide) return;
-
-		auto animation = TurtleAnimationManager::TryConsumeAtPos(pos);
-		if (!animation.has_value()) {
-			Log::Info("tryConsumeAtPos had no value");
-			return;
-		}
-
-		TurtleMoveAnimation& moveAnim = animation.value();
-
-		Log::Info("onPlace animation {} {}", moveAnim.mTurtleStartPos, moveAnim.mTurtleEndPos);
-	}*/
 };
