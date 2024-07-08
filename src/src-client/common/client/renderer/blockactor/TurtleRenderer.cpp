@@ -1,5 +1,7 @@
 #include "src-client/common/client/renderer/blockactor/TurtleRenderer.hpp"
 #include <minecraft/src-client/common/client/renderer/Tessellator.hpp>
+#include <minecraft/src-client/common/client/renderer/TexturePtr.hpp>
+#include <minecraft/src-deps/renderer/Camera.hpp>
 
 GeometryInfo* TurtleRenderer::TURTLE_GEOMETRY;
 mce::TexturePtr TurtleRenderer::TURTLE_TEXTURE;

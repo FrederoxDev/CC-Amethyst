@@ -7,6 +7,10 @@
 #include <minecraft/src-deps/minecraftrenderer/renderer/BedrockTexture.hpp>
 #include <minecraft/src/common/world/phys/Vec3.hpp>
 #include <src/common/world/level/block/actor/TurtleBlockActor.hpp>
+#include <minecraft/src-deps/minecraftrenderer/renderer/Mesh.hpp>
+#include <minecraft/src-deps/renderer/Matrix.hpp>
+#include <minecraft/src-deps/renderer/Camera.hpp>
+#include <minecraft/src-deps/minecraftrenderer/renderer/BedrockTexture.hpp>
 
 constexpr int turtleMoveDuration = 600; // ms
 

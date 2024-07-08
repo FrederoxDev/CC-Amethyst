@@ -12,6 +12,8 @@
 #include <minecraft/src-client/common/client/model/GeometryGroup.hpp>
 #include <minecraft/src-client/common/client/model/Geometry.hpp>
 #include <src/common/network/packet/TurtleRotatePacket.hpp>
+#include <minecraft/src-deps/coregraphics/TextureSetLayerTypes.hpp>
+#include <minecraft/src-client/common/client/renderer/TextureGroup.hpp>
 
 AmethystContext* amethyst = nullptr;
 
@@ -23,7 +25,6 @@ public:
 		TurtleAnimationManager::OnTurtleMovePacket(movementPacket);
 	}
 };
-
 
 template <>
 class PacketHandlerDispatcherInstance<TurtleRotatePacket, false> : public IPacketHandlerDispatcher {

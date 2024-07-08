@@ -4,6 +4,7 @@
 #include "src/common/world/level/block/actor/TurtleBlockActor.hpp"
 #include "src/common/world/level/computer/LuaInstanceManager.hpp"
 #include "src/common/world/level/turtle/TurtleAnimationManager.hpp"
+#include <minecraft/src/common/world/actor/player/Player.hpp>
 
 class TurtleBlock : public BlockLegacy {
 public: 
@@ -29,6 +30,9 @@ protected:
 			LuaInstance* luaInstance = LuaInstanceManager::GetOrCreateInstanceAt(pos);
 			luaInstance->RunLua(R"(
 				
+			turtle.forward()
+			turtle.forward()
+			turtle.turnLeft()
 			turtle.turnLeft()
 
 			)");  
